@@ -61,8 +61,22 @@ async function loadBuildingCloud(url:string,targetCount=68000){
   for(let i=0;i<source.count;i++){source.setXYZ(i,(source.getX(i)-center.x)*scale,(source.getY(i)-box.min.y)*scale-7.5,(source.getZ(i)-center.z)*scale)}
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',source);
   const colors=new Float32Array(source.count*3),random=rng(700+source.count);for(let i=0;i<source.count;i++){const v=.42+random()*.48;colors[i*3]=v;colors[i*3+1]=v*.98;colors[i*3+2]=v*.92}geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
-  const material=new THREE.PointsMaterial({size:1.15,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.88,depthWrite:false});
+  // Let the nearest particles occlude particles behind them. Without depth writes,
+  // the front and back faces accumulate into an overexposed white block whenever
+  // the building is viewed head-on.
+  const material=new THREE.PointsMaterial({
+    size:1,
+    sizeAttenuation:false,
+    vertexColors:true,
+    transparent:true,
+    opacity:.76,
+    depthTest:true,
+    depthWrite:true,
+    alphaTest:.08
+  });
   return new THREE.Points(geometry,material);
 }
-offices.forEach((o,i)=>{const wrap=document.querySelector<HTMLElement>(`#scene-${i}`)!,scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,1,.1,140);camera.position.set(24,13,31);camera.lookAt(0,0,0);const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));wrap.appendChild(renderer.domElement);const cloud=new THREE.Group();scene.add(cloud);ground(scene,-7.5);document.querySelector(`#points-${i}`)!.textContent='LOADING MODEL';loadBuildingCloud(modelFiles[i]).then(points=>{cloud.add(points);document.querySelector(`#points-${i}`)!.textContent=`${points.geometry.getAttribute('position').count.toLocaleString('en-US').replaceAll(',',' ')} PTS`}).catch(()=>{document.querySelector(`#points-${i}`)!.textContent='MODEL LOAD ERROR'});views.push({renderer,camera,scene,cloud,wrap,baseY:i*.12-.1})});
+const viewAngles=[.9,-.92,.88];
+const viewScales=[.84,.84,1];
+offices.forEach((o,i)=>{const wrap=document.querySelector<HTMLElement>(`#scene-${i}`)!,scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,1,.1,140);camera.position.set(24,13,31);camera.lookAt(0,0,0);const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));wrap.appendChild(renderer.domElement);const cloud=new THREE.Group();cloud.scale.setScalar(viewScales[i]);scene.add(cloud);ground(scene,-7.5);document.querySelector(`#points-${i}`)!.textContent='LOADING MODEL';loadBuildingCloud(modelFiles[i]).then(points=>{cloud.add(points);document.querySelector(`#points-${i}`)!.textContent=`${points.geometry.getAttribute('position').count.toLocaleString('en-US').replaceAll(',',' ')} PTS`}).catch(()=>{document.querySelector(`#points-${i}`)!.textContent='MODEL LOAD ERROR'});views.push({renderer,camera,scene,cloud,wrap,baseY:viewAngles[i]})});
 let px=0,py=0,paused=false;addEventListener('pointermove',e=>{px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5});const motion=document.querySelector<HTMLButtonElement>('#motion')!;motion.addEventListener('click',()=>{paused=!paused;motion.setAttribute('aria-pressed',String(paused));motion.classList.toggle('paused',paused)});const start=performance.now();let lastFrame=start,spin=0;function frame(now:number){requestAnimationFrame(frame);const t=(now-start)/1000,delta=Math.min((now-lastFrame)/1000,.05);lastFrame=now;if(!paused)spin=(spin+delta*.16)%(Math.PI*2);views.forEach((v,i)=>{const r=v.wrap.getBoundingClientRect(),w=Math.max(1,Math.floor(r.width)),h=Math.max(1,Math.floor(r.height));if(v.renderer.domElement.clientWidth!==w||v.renderer.domElement.clientHeight!==h){v.renderer.setSize(w,h,false);v.camera.aspect=w/h;v.camera.updateProjectionMatrix()}if(!paused){v.cloud.rotation.y=v.baseY+spin+px*.12;v.cloud.rotation.x=py*.045;v.cloud.position.y=Math.sin(t*.55+i*1.7)*.08}v.renderer.render(v.scene,v.camera)})}requestAnimationFrame(frame);const clock=document.querySelector('#clock')!;setInterval(()=>clock.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()),1000);if(matchMedia('(prefers-reduced-motion: reduce)').matches){paused=true;motion.classList.add('paused')}
