@@ -1,0 +1,7 @@
+Asset: Modular Urban Apartments Facade
+Author: James Ray Cock
+Source: https://polyhaven.com/a/modular_urban_apartments_facade
+License: CC0 1.0 Universal (public domain)
+License: https://creativecommons.org/publicdomain/zero/1.0/
+
+Downloaded from the official Poly Haven API in glTF 1K format.
