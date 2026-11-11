@@ -52,7 +52,7 @@ function building(shape:Shape,seed:number){
   return{points:new THREE.Points(geo,material),count:data.length/3}
 }
 function ground(scene:THREE.Scene,y:number){const group=new THREE.Group(),mat=new THREE.LineBasicMaterial({color:0x3a3833,transparent:true,opacity:.42});for(let r=5;r<=25;r+=5){const curve=new THREE.EllipseCurve(0,0,r,r*.45,0,Math.PI*2);group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(curve.getPoints(96).map(p=>new THREE.Vector3(p.x,0,p.y))),mat))}for(let i=0;i<16;i++){const a=i/16*Math.PI*2;group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(Math.cos(a)*27,0,Math.sin(a)*27)]),mat))}group.position.y=y;scene.add(group)}
-const modelFiles=['/models/b_small.glb','/models/b_small.glb','/models/b_small.glb'];
+const modelFiles=['/models/b_large.glb','/models/b_medium.glb','/models/b_small.glb'];
 const loader=new GLTFLoader();
 async function loadBuildingCloud(url:string,targetCount=68000){
   const gltf=await loader.loadAsync(url);gltf.scene.updateMatrixWorld(true);
