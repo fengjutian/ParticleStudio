@@ -1,0 +1,48 @@
+.rotation-guide {
+  position: absolute;
+  right: 20px;
+  bottom: 39px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #77736b;
+  font: 500 8px 'IBM Plex Mono', monospace;
+  letter-spacing: .16em;
+  pointer-events: none;
+}
+
+.rotation-guide i {
+  position: relative;
+  display: block;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #75a9df80;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: guide-spin 4s linear infinite;
+}
+
+.rotation-guide i::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: 1px;
+  width: 4px;
+  height: 4px;
+  border-top: 1px solid var(--blue);
+  border-right: 1px solid var(--blue);
+  transform: rotate(24deg);
+}
+
+@keyframes guide-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotation-guide i { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .rotation-guide { right: 14px; bottom: 36px; }
+}

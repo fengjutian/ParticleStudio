@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import './style.css';
+import './rotation-guide.css';
 
 type Shape = 'tower' | 'warehouse' | 'loft';
 type Office = { code:string; name:string; title:string; coords:string; time:string; utc:string; address:string; description:string; phone:string; shape:Shape };
@@ -12,6 +13,8 @@ const offices:Office[]=[
 
 const app=document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML=`<header class="site-header"><button class="menu" aria-label="Open menu"><i></i><i></i><i></i></button><a class="wordmark" href="#">PARTICLE / STUDIO</a><nav><a href="#model">MODEL<sup>01</sup></a><a href="#offices">OFFICES<sup>03</sup></a><a href="#data">DATA<sup>08</sup></a></nav><div class="header-meta"><span class="signal"></span><span>LIVE MODEL</span><span class="desktop-only">STO&nbsp; <b id="clock">08:25:11</b></span></div><button id="motion" class="motion" aria-label="Pause particle motion" aria-pressed="false"><span></span><span></span></button></header><main id="model"><aside class="ruler" aria-hidden="true">${[1,2,3,4,5].map(n=>`<span style="top:${(n-1)*25}%">0${n}</span>`).join('')}</aside><section class="hero"><div class="eyebrow">FIG. 01 / STUDIO / THREE OFFICES</div><h1>Three offices,<br><em>one point cloud.</em></h1><p>Architectural presence reconstructed as particles.<br>Every point holds a position in space.</p></section><section class="office-grid" id="offices">${offices.map((o,i)=>`<article class="office"><div class="scan-card"><div class="scan-label">${o.code} / ${o.title}</div><div class="scan-status"><i></i>${i===1?'ACTIVE SCAN':'POINT CLOUD'}</div><div class="canvas-wrap" id="scene-${i}"></div><div class="focus-frame"><span></span><span></span><span></span><span></span></div><div class="crosshair"></div><div class="coords">${o.coords}</div><div class="point-count" id="points-${i}">000 000 PTS</div></div><div class="office-info"><div class="time-block"><small>${o.name}</small><strong>${o.time}</strong><span>${o.utc}</span></div><div class="address"><small>ADDRESS</small><p>${o.address}</p><small>PHONE</small><p>${o.phone}</p></div><p class="description">${o.description}</p></div></article>`).join('')}</section><section class="model-note" id="data"><span>FIG. 02 / REALITY CAPTURE</span><p>Built from measured surfaces, noise and light — a living drawing rather than a finished object.</p><b>SCROLL / EXPLORE</b></section></main><footer><span>PARTICLE STUDIO / ARCHITECTURE STUDY</span><span>WEBGL / THREE.JS</span><span>2026</span></footer>`;
+
+document.querySelectorAll('.scan-card').forEach(card=>card.insertAdjacentHTML('beforeend','<div class="rotation-guide" aria-hidden="true"><i></i><span>360° AUTO ROTATE</span></div>'));
 
 const views:Array<{renderer:THREE.WebGLRenderer;camera:THREE.PerspectiveCamera;scene:THREE.Scene;cloud:THREE.Group;wrap:HTMLElement;baseY:number}>=[];
 function rng(seed:number){let v=seed>>>0;return()=>((v=(v*1664525+1013904223)>>>0)/4294967296)}
